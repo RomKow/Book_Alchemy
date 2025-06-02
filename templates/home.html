@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Meine Bibliothek</title>
+    <!-- Hier binden wir die CSS-Datei ein -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Meine digitale Bibliothek</h1>
+
+      <!-- Flash-Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div
+              class="flash-message {% if category == 'success' %}flash-success{% else %}flash-error{% endif %}"
+            >
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Suchfeld + Sortierung -->
+      <div class="search-sort-wrapper">
+        <form action="{{ url_for('home') }}" method="GET">
+          <input
+            type="text"
+            name="search"
+            placeholder="Suchbegriff..."
+            value="{{ search_term }}"
+          />
+          <button type="submit">Search</button>
+          <input
+            type="hidden"
+            name="sort"
+            value="{{ current_sort }}"
+          />
+        </form>
+
+        <div class="sorting">
+          Sortieren nach:
+          {% if current_sort == 'title' %}
+            <strong>Titel</strong>
+          {% else %}
+            <a
+              href="{{ url_for('home', sort='title', search=search_term) }}"
+              >Titel</a
+            >
+          {% endif %}
+          |
+          {% if current_sort == 'author' %}
+            <strong>Autor:in</strong>
+          {% else %}
+            <a
+              href="{{ url_for('home', sort='author', search=search_term) }}"
+              >Autor:in</a
+            >
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Nav-Links -->
+      <div class="nav-links">
+        <a href="{{ url_for('add_author') }}">Autor:in hinzufügen</a>
+        |
+        <a href="{{ url_for('add_book') }}">Buch hinzufügen</a>
+      </div>
+
+      <hr />
+
+      <!-- Keine Ergebnisse -->
+      {% if no_results %}
+        <p style="color: var(--accent-color); text-align: center;">
+          Keine Bücher gefunden, die „{{ search_term }}“ enthalten.
+        </p>
+      {% endif %}
+
+      <!-- Wenig Bücher in DB & keine Suche -->
+      {% if not books and not search_term %}
+        <p style="text-align: center;">
+          Momentan sind keine Bücher in der Bibliothek. Füge zuerst welche hinzu!
+        </p>
+      {% endif %}
+
+      <!-- Buch-Karten -->
+      {% for book in books %}
+        <div class="book-card">
+          <img
+            src="https://covers.openlibrary.org/b/isbn/{{ book.isbn }}-M.jpg"
+            alt="Cover von {{ book.title }}"
+            onerror="this.onerror=null; this.src='https://via.placeholder.com/120x180.png?text=Kein+Cover';"
+          />
+          <div class="book-card-content">
+            <h3>{{ book.title }} ({{ book.publication_year }})</h3>
+            <p><strong>Autor:in:</strong> {{ book.author.name }}</p>
+            <p><strong>ISBN:</strong> {{ book.isbn }}</p>
+            <div class="book-actions">
+              <form
+                action="{{ url_for('delete_book', book_id=book.id) }}"
+                method="POST"
+                onsubmit="return confirm('Buch wirklich löschen?');"
+              >
+                <button type="submit">Delete Book</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Autor:in hinzufügen</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h2>Autor:in hinzufügen</h2>
+
+      <!-- Flash-Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div
+              class="flash-message {% if category == 'success' %}flash-success{% else %}flash-error{% endif %}"
+            >
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <div class="form-wrapper">
+        <form action="/add_author" method="POST">
+          <label for="name">Name:</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            required
+            placeholder="z.B. Jane Austen"
+          />
+
+          <label for="birthdate">Geburtsdatum:</label>
+          <input type="date" id="birthdate" name="birthdate" required />
+
+          <label for="date_of_death">Sterbedatum (optional):</label>
+          <input type="date" id="date_of_death" name="date_of_death" />
+
+          <button type="submit">Autor:in hinzufügen</button>
+        </form>
+      </div>
+
+      <a class="back-link" href="{{ url_for('home') }}"
+        >← Zurück zur Startseite</a
+      >
+    </div>
+  </body>
+</html>
